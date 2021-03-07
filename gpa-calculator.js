@@ -1,4 +1,4 @@
-//Include jQuery library for AJAX GET request (lines 17-24)
+//Include jQuery library for AJAX GET request (lines 23-32)
 var jquery = document.createElement('script');
 jquery.src = 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js';
 document.getElementsByTagName('head')[0].appendChild(jquery);
@@ -49,7 +49,7 @@ function grade2gpa(grade) {
 }
 
 /** 
- * Credit hours were obtained by using the below code (lines 54-61) and manually storing them in the 'creditHours' dictionary.
+ * Credit hours were obtained by using the below code (lines 55-62) and manually storing them in the 'creditHours' dictionary.
  * Same origin policy blocks cross-origin requests, so no known way to automatically get html content from the RedBook while on CIS.
  *
  * window.location.href = 'https://courses.westpoint.edu/crse_offerings.cfm?ayt_offerings=true&acad_yr=2021&term=2';
@@ -180,16 +180,16 @@ for (k = 0; k < rows.length; k++) {
   }
 }
 
-//Iterate through courses and add maximum possible course grade and gpa value to the 'possible' dictionary  
+//Iterate through courses and add maximum possible course grade and GPA value to the 'possible' dictionary  
 for (l = 0; l < courses.length; l++) {
   var course = courses[l];
   var total = Math.round(points[course][1]/completion[l]); //Divide maximum points by completion percentage to find total course points
   var maxGrade = (total-(points[course][1]-points[course][0]))/total; //Subtract total course points by the difference between max and earned points and divide by total course points to find maximum possible grade
-  possible[course] = [maxGrade, grade2gpa(maxGrade)]; //Add course grade and equivalent gpa value to the 'possible' dictionary
+  possible[course] = [maxGrade, grade2gpa(maxGrade)]; //Add course grade and equivalent GPA value to the 'possible' dictionary
 }
 
-/*Calculate gpa based on course credits and individual course gpa values.
-  GPA is calculated by averaging the course gpa values while accounting for the number of credits per course*/
+/*Calculate GPA based on course credits and individual course GPA values.
+  GPA is calculated by averaging the course GPA values while accounting for the number of credits per course*/
 function gpaCalculator(dictionary) {
   var [weighted, totalCredits] = [0, 0]; //'weighted' is the course gpa value multiplied by the number of credits
   for (var gpaValue in dictionary) {
