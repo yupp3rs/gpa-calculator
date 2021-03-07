@@ -6,33 +6,33 @@ document.getElementsByTagName('head')[0].appendChild(jquery);
 var links = document.getElementsByTagName('a'); //Get array of all links on webpage
 var courses = new Array();
 var [actual, possible, points] = [{}, {}, {}]; /*Initialize dictionaries where the key-value pair is the course and an array of the following:
-                                                 - 'actual' contains current course grade and equivalent gpa value
-                                                 - 'possible' contains maximum possible course grade and equivalent gpa value
+                                                 - 'actual' contains current course grade and equivalent GPA value
+                                                 - 'possible' contains maximum possible course grade and equivalent GPA value
                                                  - 'points' contains earned and maxmimum course points*/
 var gpaValues = [4.33, 4, 3.67, 3.33, 3, 2.67, 2.33, 2, 1.67, 1, 0];
 
-/*Find courses based on matched substring in links and append to courses array.
-  Courses are always the following 5-6 characters after 'CourseGradeBook.cfm?CourseNumber=' in links*/
+/*Find courses based on matched substring in links and append to 'courses' array.
+  Courses are always the 5-6 characters after 'CourseGradeBook.cfm?CourseNumber=' in links*/
 for (i = 0; i < links.length; i++) {
   if (links[i].href.indexOf('Course') !== -1) courses.push(links[i].text.substring(0,6).replace(/\s+/g,''));
 }
 
-//Iterate through courses and navigate to grade book webpages for each course using an AJAX GET request
+//Iterate through 'courses' and navigate to grade book webpages for each course using an AJAX GET request
 for (j = 0; j < courses.length; j++) {
   var url = 'https://cis.westpoint.edu/cis/Academic/CourseGradeBook.cfm?CourseNumber=' + courses[j];
   $.ajax({type: 'GET', url: url, ajaxI: j, async: false, /*Pass variable j to function using ajaxI.
-                                                           Set async to false to wait for the grade2gpa function to run.*/  
+                                                           Set async to false to wait for the 'grade2gpa' function to run.*/  
     success: function(html) {
       var totals = $(html).find('tr:last').text().replace(/\s+/g,',').split(','); /*Create array based on cells in the last row of the grade book table:
                                                                                     totals = ['TOTAL', <points earned>, <maximum possible points>, <grade>]*/
       var [earned, max, grade] = [parseFloat(totals[2]), parseFloat(totals[3]), totals[2]/totals[3]]; //Create equivalent variables based on array values
-      actual[courses[this.ajaxI]] = [grade, grade2gpa(grade)]; //Add course grade and equivalent gpa value to the 'actual' dictionary
+      actual[courses[this.ajaxI]] = [grade, grade2gpa(grade)]; //Add course grade and equivalent GPA value to the 'actual' dictionary
       points[courses[this.ajaxI]] = [earned, max]; //Add earned and maximum course points to the 'points' dictionary
     }
   });
 }
   
-//Returns equivalent gpa value for inputted grade
+//Returns equivalent GPA value for inputted grade
 function grade2gpa(grade) {
   if (isNaN(grade)) return NaN;
   else if (               grade >= .97) return gpaValues[0];
@@ -50,7 +50,7 @@ function grade2gpa(grade) {
 
 /** 
  * Credit hours were obtained by using the below code (lines 55-62) and manually storing them in the 'creditHours' dictionary.
- * Same origin policy blocks cross-origin requests, so no known way to automatically get html content from the RedBook while on CIS.
+ * Same origin policy blocks cross-origin requests, so no known way to automatically get HTML content from the RedBook while on CIS.
  *
  * window.location.href = 'https://courses.westpoint.edu/crse_offerings.cfm?ayt_offerings=true&acad_yr=2021&term=2';
  * var rows = document.getElementsByTagName('tr');
@@ -173,23 +173,23 @@ var creditHours = { //534 courses for academic year 2021-2
 var rows = document.getElementsByTagName('tr'); //Get array of all table rows on webpage
 var completion = new Array(); //Initialize array to store course completion percentage
 for (k = 0; k < rows.length; k++) {
-  if (rows[k].innerHTML.indexOf('Course') !== -1 && rows[k].innerHTML.indexOf('Home Page') == -1) { //Check if row contains course and ignore the homepage since it provides duplicate results
+  if (rows[k].innerHTML.indexOf('Course') !== -1 && rows[k].innerHTML.indexOf('Home Page') == -1) { //Check if row contains course and ignore the homepage since it produces duplicate results
     var length = rows[k].innerText.length;
     var completed = rows[k].innerText.substring(length-3, length-1).replace(/\s+/g,''); //Completion percentage is found in the last 2-3 characters of the row
     completion.push(completed/100); //Change completion percentage to decimal and add to 'completion' array
   }
 }
 
-//Iterate through courses and add maximum possible course grade and GPA value to the 'possible' dictionary  
+//Iterate through 'courses' and add maximum possible course grade and GPA value to the 'possible' dictionary  
 for (l = 0; l < courses.length; l++) {
   var course = courses[l];
   var total = Math.round(points[course][1]/completion[l]); //Divide maximum points by completion percentage to find total course points
-  var maxGrade = (total-(points[course][1]-points[course][0]))/total; //Subtract total course points by the difference between max and earned points and divide by total course points to find maximum possible grade
+  var maxGrade = (total-(points[course][1]-points[course][0]))/total; //Subtract total course points by the difference between max and earned points and divide by total course points to find the maximum possible grade
   possible[course] = [maxGrade, grade2gpa(maxGrade)]; //Add course grade and equivalent GPA value to the 'possible' dictionary
 }
 
 /*Calculate GPA based on course credits and individual course GPA values.
-  GPA is calculated by averaging the course GPA values while accounting for the number of credits per course*/
+  GPA is calculated by averaging the course GPA values while accounting for the number of credits per course.*/
 function gpaCalculator(dictionary) {
   var [weighted, totalCredits] = [0, 0]; //'weighted' is the course gpa value multiplied by the number of credits
   for (var gpaValue in dictionary) {
@@ -204,16 +204,16 @@ function gpaCalculator(dictionary) {
 }
   
 var [currentGrades, maxGrades] = [new Array(), new Array()];
-var [success, error] = [' Class    Current Grade   Maximum Possible Grade\n', '']; //Create message header for JavaScript alert() and default error message
+var [success, error] = [' Class    Current Grade   Maximum Possible Grade\n', '']; //Create success message header and default error message
 for (m = 0; m < courses.length; m++) {
   if (isNaN(actual[courses[m]][0])) { /*Check if course grade is Not-a-Number (NaN).
                                         Initial web scrape could have been unsuccessful if grades were not published on the course grade book.*/
     error += ('*' + courses[m] + ' is ignored due to lack of published grades'); 
-  } else if (courses[m].substring(0,2) == 'DC' || // Check if the course should not be factored into the GPA calculation (Directed Underload or Military Development)
-             courses[m].substring(0,2) == 'MD' || // or if it is not academic (Military Science or Physical Education)
-             courses[m].substring(0,2) == 'MS' || // 
+  } else if (courses[m].substring(0,2) == 'DC' || //Check if the course should not be factored into the GPA calculation (Directed Underload or Military Development)
+             courses[m].substring(0,2) == 'MD' || //or if the course is not academic (Military Science or Physical Education)
+             courses[m].substring(0,2) == 'MS' ||  
              courses[m].substring(0,2) == 'PE') {
-    error += ('*' + courses[m] + ' is ignored because it is not an academic class\n'); //Add error message
+    error += ('*' + courses[m] + ' is ignored because it is not an academic class\n');
   } else { //Otherwise add course, current grade, and maximum possible grade to success message with adequate spacing
     success += courses[m] + '          ' + (actual[courses[m]][0]*100).toFixed(2) + '                        ' + (possible[courses[m]][0]*100).toFixed(2) + '\n';
   }
