@@ -192,12 +192,12 @@ var [currentGrades, maxGrades] = [new Array(), new Array()];
 var [success, error] = [' Class    Current Grade   Maximum Possible Grade\n', ''];
 for (m = 0; m < courses.length; m++) {
   if (isNaN(actual[courses[m]][0])) {
-    error += ('\n\n*' + courses[m] + ' is ignored due to lack of published grades');
+    error += ('*' + courses[m] + ' is ignored due to lack of published grades');
   } else if (courses[m].substring(0,2) == 'DC' ||
              courses[m].substring(0,2) == 'MD' ||
              courses[m].substring(0,2) == 'MS' || 
              courses[m].substring(0,2) == 'PE') {
-    error += (courses[m] + ' is ignored because it is not an academic class\n');
+    error += ('*' + courses[m] + ' is ignored because it is not an academic class\n');
   } else {
     success += courses[m] + '          ' + (actual[courses[m]][0]*100).toFixed(2) + '                        ' + (possible[courses[m]][0]*100).toFixed(2) + '\n';
   }
@@ -207,5 +207,5 @@ var actualGPA = gpaCalculator(actual).toFixed(3);
 var possibleGPA = gpaCalculator(possible).toFixed(3);
 if (!isNaN(actualGPA) && !isNaN(possibleGPA)) {
   success += '\nCurrent GPA: ' + actualGPA + '\n' + 'Maximum Possible GPA: ' + possibleGPA;
-  alert(success + error);
+  alert(success + '\n\n' + error);
 } else alert('Error: GPA cannot be calculated!');
