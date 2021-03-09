@@ -6,14 +6,16 @@ document.getElementsByTagName('head')[0].appendChild(jquery);
 var links = document.getElementsByTagName('a'); //Get array of all links on webpage
 var url = ''; //Course Grade Book base URL
 var courses = new Array();
-var [actual, possible, points] = [{}, {}, {}]; /*Initialize dictionaries where the key-value pair is the course and an array of the following:
+var [actual, possible, points] = [{}, {}, {}]; /*Initialize dictionaries where the key is the course and the value is an array of the following:
                                                  - 'actual' contains current course grade and equivalent GPA value
                                                  - 'possible' contains maximum possible course grade and equivalent GPA value
                                                  - 'points' contains earned and maxmimum course points*/
 var gpaValues = [4.33, 4, 3.67, 3.33, 3, 2.67, 2.33, 2, 1.67, 1, 0];
 
-/*Find courses based on matched substring in links and append to 'courses' array.
-  Courses are always the 5-6 characters after 'CourseGradeBook.cfm?CourseNumber=' in links*/
+/*
+ * Find courses based on matched substring in links and append to 'courses' array.
+ * Courses are always the 5-6 characters after 'CourseGradeBook.cfm?CourseNumber=' in links
+ */
 for (i = 0; i < links.length; i++) {
   if (links[i].href.indexOf('Course') !== -1) {
     courses.push(links[i].text.substring(0,6).replace(/\s+/g,''));
@@ -24,7 +26,7 @@ for (i = 0; i < links.length; i++) {
 //Iterate through 'courses' and navigate to grade book webpages for each course using an AJAX GET request
 for (j = 0; j < courses.length; j++) {
   $.ajax({type: 'GET', url: url + courses[j], ajaxI: j, async: false, /*Pass variable j to function using ajaxI.
-                                                           Set async to false to wait for the 'grade2gpa' function to run.*/  
+                                                                        Set async to false to wait for the 'grade2gpa' function to run.*/  
     success: function(html) {
       var totals = $(html).find('tr:last').text().replace(/\s+/g,',').split(','); /*Create array based on cells in the last row of the grade book table:
                                                                                     totals = ['TOTAL', <points earned>, <maximum possible points>, <grade>]*/
@@ -55,11 +57,11 @@ function grade2gpa(grade) {
  * Credit hours were obtained by using the below code (lines 55-62) and manually storing them in the 'creditHours' dictionary.
  * Same origin policy blocks cross-origin requests, so no known way to automatically get HTML content from the RedBook while on CIS.
  *
- * var rows = document.getElementsByTagName('tr');
+ * var rows = document.getElementsByTagName('tr'); //Get array of all table rows on webpage
  * var creditHours = {};
  * for (i = 0; i < rows.length; i++) {
- *   if (rows[i].innerText.match(/[0-9]\.[0-9]/) !== null) {
- *     creditHours[rows[i].innerText.substring(0,6).replace(/\s/g,'')] = rows[i].innerText.match(/[0-9]\.[0-9]/)[0];
+ *   if (rows[i].innerText.match(/[0-9]\.[0-9]/) !== null) { //Search for credit hours by matching the substring with the format '#.#'
+ *     creditHours[rows[i].innerText.substring(0,6).replace(/\s/g,'')] = rows[i].innerText.match(/[0-9]\.[0-9]/)[0]; //Add to 'creditHours' dictionary
  *   }
  * }
  */
@@ -190,8 +192,10 @@ for (l = 0; l < courses.length; l++) {
   possible[course] = [maxGrade, grade2gpa(maxGrade)]; //Add course grade and equivalent GPA value to the 'possible' dictionary
 }
 
-/*Calculate GPA based on course credits and individual course GPA values.
-  GPA is calculated by averaging the course GPA values while accounting for the number of credits per course.*/
+/*
+ * Calculate GPA based on course credits and individual course GPA values.
+ * GPA is calculated by averaging the course GPA values while accounting for the number of credits per course.
+ */
 function gpaCalculator(dictionary) {
   var [weighted, totalCredits] = [0, 0]; //'weighted' is the course gpa value multiplied by the number of credits
   for (var gpaValue in dictionary) {
@@ -205,13 +209,12 @@ function gpaCalculator(dictionary) {
   return weighted/totalCredits;
 }
   
-var [currentGrades, maxGrades] = [new Array(), new Array()];
+var [currentGrades, maxGrades, ignored] = [new Array(), new Array(), ['DC', 'MD', 'MS', 'PE']]; /*Directed Underload (DC), Military Development (MD),
+                                                                                                  Military Science (MS) or Physical Education (PE)
+                                                                                                  classes are not factored into GPA*/
 var [success, error] = [' Class    Current Grade   Maximum Possible Grade\n', '']; //Create success message header and default error message
 for (m = 0; m < courses.length; m++) {
-  if (courses[m].substring(0,2) == 'DC' || //Check if the course should not be factored into the GPA calculation (Directed Underload or Military Development)
-      courses[m].substring(0,2) == 'MD' || //or if the course is not academic (Military Science or Physical Education)
-      courses[m].substring(0,2) == 'MS' ||  
-      courses[m].substring(0,2) == 'PE') {
+  if (ignored.indexOf(courses[m].substring(0,2)) !== -1) { //Check if the course should not be factored into the GPA calculation
     error += ('*' + courses[m] + ' is ignored because it is not an academic class\n');
   } else if (isNaN(actual[courses[m]][0])) { /*Check if course grade is Not-a-Number (NaN).
                                                Initial web scrape could have been unsuccessful if grades were not published on the course grade book.*/
