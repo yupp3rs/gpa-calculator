@@ -208,14 +208,14 @@ function gpaCalculator(dictionary) {
 var [currentGrades, maxGrades] = [new Array(), new Array()];
 var [success, error] = [' Class    Current Grade   Maximum Possible Grade\n', '']; //Create success message header and default error message
 for (m = 0; m < courses.length; m++) {
-  if (isNaN(actual[courses[m]][0])) { /*Check if course grade is Not-a-Number (NaN).
-                                        Initial web scrape could have been unsuccessful if grades were not published on the course grade book.*/
-    error += ('*' + courses[m] + ' is ignored due to lack of published grades\n'); 
-  } else if (courses[m].substring(0,2) == 'DC' || //Check if the course should not be factored into the GPA calculation (Directed Underload or Military Development)
-             courses[m].substring(0,2) == 'MD' || //or if the course is not academic (Military Science or Physical Education)
-             courses[m].substring(0,2) == 'MS' ||  
-             courses[m].substring(0,2) == 'PE') {
+  if (courses[m].substring(0,2) == 'DC' || //Check if the course should not be factored into the GPA calculation (Directed Underload or Military Development)
+      courses[m].substring(0,2) == 'MD' || //or if the course is not academic (Military Science or Physical Education)
+      courses[m].substring(0,2) == 'MS' ||  
+      courses[m].substring(0,2) == 'PE') {
     error += ('*' + courses[m] + ' is ignored because it is not an academic class\n');
+  } else if (isNaN(actual[courses[m]][0])) { /*Check if course grade is Not-a-Number (NaN).
+                                               Initial web scrape could have been unsuccessful if grades were not published on the course grade book.*/
+    error += ('*' + courses[m] + ' is ignored due to lack of published grades\n');
   } else { //Otherwise add course, current grade, and maximum possible grade to success message with adequate spacing
     success += courses[m] + '          ' + (actual[courses[m]][0]*100).toFixed(2) + '                        ' + (possible[courses[m]][0]*100).toFixed(2) + '\n';
   }
