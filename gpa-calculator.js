@@ -4,6 +4,7 @@ jquery.src = 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js';
 document.getElementsByTagName('head')[0].appendChild(jquery);
 
 var links = document.getElementsByTagName('a'); //Get array of all links on webpage
+var url = ''; //Course Grade Book base URL
 var courses = new Array();
 var [actual, possible, points] = [{}, {}, {}]; /*Initialize dictionaries where the key-value pair is the course and an array of the following:
                                                  - 'actual' contains current course grade and equivalent GPA value
@@ -14,13 +15,15 @@ var gpaValues = [4.33, 4, 3.67, 3.33, 3, 2.67, 2.33, 2, 1.67, 1, 0];
 /*Find courses based on matched substring in links and append to 'courses' array.
   Courses are always the 5-6 characters after 'CourseGradeBook.cfm?CourseNumber=' in links*/
 for (i = 0; i < links.length; i++) {
-  if (links[i].href.indexOf('Course') !== -1) courses.push(links[i].text.substring(0,6).replace(/\s+/g,''));
+  if (links[i].href.indexOf('Course') !== -1) {
+    courses.push(links[i].text.substring(0,6).replace(/\s+/g,''));
+    url = links[i].href.substring(0,72); //Get course grade book base URL
+  }
 }
 
 //Iterate through 'courses' and navigate to grade book webpages for each course using an AJAX GET request
 for (j = 0; j < courses.length; j++) {
-  var url = 'https://cis.westpoint.edu/cis/Academic/CourseGradeBook.cfm?CourseNumber=' + courses[j];
-  $.ajax({type: 'GET', url: url, ajaxI: j, async: false, /*Pass variable j to function using ajaxI.
+  $.ajax({type: 'GET', url: url + courses[j], ajaxI: j, async: false, /*Pass variable j to function using ajaxI.
                                                            Set async to false to wait for the 'grade2gpa' function to run.*/  
     success: function(html) {
       var totals = $(html).find('tr:last').text().replace(/\s+/g,',').split(','); /*Create array based on cells in the last row of the grade book table:
@@ -52,7 +55,6 @@ function grade2gpa(grade) {
  * Credit hours were obtained by using the below code (lines 55-62) and manually storing them in the 'creditHours' dictionary.
  * Same origin policy blocks cross-origin requests, so no known way to automatically get HTML content from the RedBook while on CIS.
  *
- * window.location.href = 'https://courses.westpoint.edu/crse_offerings.cfm?ayt_offerings=true&acad_yr=2021&term=2';
  * var rows = document.getElementsByTagName('tr');
  * var creditHours = {};
  * for (i = 0; i < rows.length; i++) {
@@ -208,7 +210,7 @@ var [success, error] = [' Class    Current Grade   Maximum Possible Grade\n', ''
 for (m = 0; m < courses.length; m++) {
   if (isNaN(actual[courses[m]][0])) { /*Check if course grade is Not-a-Number (NaN).
                                         Initial web scrape could have been unsuccessful if grades were not published on the course grade book.*/
-    error += ('*' + courses[m] + ' is ignored due to lack of published grades'); 
+    error += ('*' + courses[m] + ' is ignored due to lack of published grades\n'); 
   } else if (courses[m].substring(0,2) == 'DC' || //Check if the course should not be factored into the GPA calculation (Directed Underload or Military Development)
              courses[m].substring(0,2) == 'MD' || //or if the course is not academic (Military Science or Physical Education)
              courses[m].substring(0,2) == 'MS' ||  
