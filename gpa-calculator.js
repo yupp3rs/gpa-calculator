@@ -1,4 +1,4 @@
-//Include jQuery library for AJAX GET request (lines 23-32)
+//Include jQuery library for AJAX GET request (lines 27-38)
 var jquery = document.createElement('script');
 jquery.src = 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js';
 document.getElementsByTagName('head')[0].appendChild(jquery);
@@ -54,7 +54,7 @@ function grade2gpa(grade) {
 }
 
 /** 
- * Credit hours were obtained by using the below code (lines 55-62) and manually storing them in the 'creditHours' dictionary.
+ * Credit hours were obtained by using the below code (lines 60-66) and manually storing them in the 'creditHours' dictionary.
  * Same origin policy blocks cross-origin requests, so no known way to automatically get HTML content from the RedBook while on CIS.
  *
  * var rows = document.getElementsByTagName('tr'); //Get array of all table rows on webpage
