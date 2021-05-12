@@ -179,7 +179,7 @@ var completion = new Array(); //Initialize array to store course completion perc
 for (k = 0; k < rows.length; k++) {
   if (rows[k].innerHTML.indexOf('Course') !== -1 && rows[k].innerHTML.indexOf('Home Page') == -1) { //Check if row contains course and ignore the homepage since it produces duplicate results
     var length = rows[k].innerText.length;
-    var completed = rows[k].innerText.substring(length-3, length-1).replace(/\s+/g,''); //Completion percentage is found in the last 2-3 characters of the row
+    var completed = rows[k].innerText.substring(length-4, length-1).replace(/\s+/g,''); //Completion percentage is found in the last 2-4 characters of the row
     completion.push(completed/100); //Change completion percentage to decimal and add to 'completion' array
   }
 }
